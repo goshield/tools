@@ -20,6 +20,12 @@ var _ = Describe("factoryBag", func() {
 		Expect(ok).To(BeTrue())
 	})
 
+	It("Get should return a default value if key does not exist", func() {
+		b := &factoryBag{make(map[string]interface{})}
+		v := b.GetOrDefault("my_key", "my_value")
+		Expect(v).To(Equal("my_value"))
+	})
+
 	It("Has should return a boolean", func() {
 		b := &factoryBag{make(map[string]interface{})}
 		b.items["my_key"] = "my_value"

@@ -38,6 +38,9 @@ type BagGetter interface {
 
 	// GetBool returns boolean value
 	GetBool(key string) (bool, bool)
+
+	// Get returns value of specific key, or return default value
+	GetOrDefault(key string, def interface{}) interface{}
 }
 
 // NewBag returns an instance of Bag
@@ -47,6 +50,14 @@ func NewBag() Bag {
 
 type factoryBag struct {
 	items map[string]interface{}
+}
+
+func (b *factoryBag) GetOrDefault(key string, def interface{}) interface{} {
+	v, ok := b.Get(key)
+	if ok {
+		return v
+	}
+	return def
 }
 
 func (b *factoryBag) Get(key string) (interface{}, bool) {
