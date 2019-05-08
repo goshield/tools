@@ -1,9 +1,10 @@
 package tools
 
 import (
+	"fmt"
+	. "github.com/goshield/interfaces"
 	"reflect"
 	"strconv"
-	"strings"
 )
 
 // Bag manages key-value pairs
@@ -20,27 +21,7 @@ type Bag interface {
 	// All returns all key-value of bag
 	All() map[string]interface{}
 
-	BagGetter
-}
-
-type BagGetter interface {
-	// Get returns value of specific key
-	Get(key string) (interface{}, bool)
-
-	// GetInt returns int64 value
-	GetInt(key string) (int64, bool)
-
-	// GetFloat returns float64 value
-	GetFloat(key string) (float64, bool)
-
-	// GetString returns string value
-	GetString(key string) (string, bool)
-
-	// GetBool returns boolean value
-	GetBool(key string) (bool, bool)
-
-	// Get returns value of specific key, or return default value
-	GetOrDefault(key string, def interface{}) interface{}
+	Getter
 }
 
 // NewBag returns an instance of Bag
@@ -53,16 +34,14 @@ type factoryBag struct {
 }
 
 func (b *factoryBag) GetOrDefault(key string, def interface{}) interface{} {
-	v, ok := b.Get(key)
-	if ok {
-		return v
+	if b.Has(key) {
+		return b.Get(key)
 	}
 	return def
 }
 
-func (b *factoryBag) Get(key string) (interface{}, bool) {
-	value, ok := b.items[key]
-	return value, ok
+func (b *factoryBag) Get(key string) interface{} {
+	return b.items[key]
 }
 
 func (b *factoryBag) Set(key string, value interface{}) {
@@ -82,88 +61,89 @@ func (b *factoryBag) All() map[string]interface{} {
 	return b.items
 }
 
-func (b *factoryBag) GetInt(key string) (int64, bool) {
-	value, ok := b.Get(key)
-	if ok == false {
-		return 0, false
-	}
-
-	switch reflect.TypeOf(value).Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return reflect.ValueOf(value).Int(), true
-	case reflect.String:
-		s := reflect.ValueOf(value).String()
-		i, err := strconv.ParseInt(s, 10, 64)
-		if err == nil {
-			return i, true
+func (b *factoryBag) GetInt(key string) int64 {
+	value, ok := b.items[key]
+	if ok {
+		switch reflect.TypeOf(value).Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			return reflect.ValueOf(value).Int()
+		case reflect.String:
+			s := reflect.ValueOf(value).String()
+			i, err := strconv.ParseInt(s, 10, 64)
+			if err == nil {
+				return i
+			}
 		}
 	}
 
-	return 0, false
+	return 0
 }
 
-func (b *factoryBag) GetFloat(key string) (float64, bool) {
-	value, ok := b.Get(key)
-	if ok == false {
-		return 0.0, false
-	}
-
-	switch v := value.(type) {
-	case float32:
-		return float64(v), true
-	case float64:
-		return v, true
-	case string:
-		f, err := strconv.ParseFloat(v, 64)
-		if err == nil {
-			return f, true
+func (b *factoryBag) GetUInt(key string) uint64 {
+	value, ok := b.items[key]
+	if ok {
+		switch reflect.TypeOf(value).Kind() {
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			return reflect.ValueOf(value).Uint()
+		case reflect.String:
+			s := reflect.ValueOf(value).String()
+			i, err := strconv.ParseUint(s, 10, 64)
+			if err == nil {
+				return i
+			}
 		}
 	}
 
-	return 0.0, false
+	return 0
 }
 
-func (b *factoryBag) GetString(key string) (string, bool) {
-	value, ok := b.Get(key)
-	if ok == false {
-		return "", false
+func (b *factoryBag) GetFloat(key string) float64 {
+	value, ok := b.items[key]
+	if ok {
+		switch reflect.TypeOf(value).Kind() {
+		case reflect.Float32, reflect.Float64:
+			return reflect.ValueOf(value).Float()
+		case reflect.String:
+			s := reflect.ValueOf(value).String()
+			i, err := strconv.ParseFloat(s, 64)
+			if err == nil {
+				return i
+			}
+		}
 	}
 
-	v, ok := value.(string)
-	if ok == false {
-		return "", false
-	}
-
-	return v, true
+	return 0.0
 }
 
-func (b *factoryBag) GetBool(key string) (bool, bool) {
-	value, ok := b.Get(key)
-	if ok == false {
-		return false, false
+func (b *factoryBag) GetString(key string) string {
+	value, ok := b.items[key]
+	if ok {
+		switch reflect.TypeOf(value).Kind() {
+		case reflect.String:
+			return reflect.ValueOf(value).String()
+		default:
+			return fmt.Sprintf("%v", value)
+		}
 	}
 
-	switch reflect.TypeOf(value).Kind() {
-	case reflect.Bool:
-		return reflect.ValueOf(value).Bool(), true
-	case reflect.String:
-		v := reflect.ValueOf(value).String()
-		if strings.Compare(v, "true") == 0 {
-			return true, true
-		} else if strings.Compare(v, "false") == 0 {
-			return false, true
-		}
+	return ""
+}
 
-		i, err := strconv.ParseInt(v, 10, 64)
-		if err == nil {
-			return i == int64(1), true
+func (b *factoryBag) GetBool(key string) bool {
+	value, ok := b.items[key]
+	if ok {
+		switch reflect.TypeOf(value).Kind() {
+		case reflect.Bool:
+			return reflect.ValueOf(value).Bool()
+		case reflect.String:
+			v := reflect.ValueOf(value).String()
+			if v == "true" || v == "1" {
+				return true
+			} else if v == "false" || v == "0" {
+				return false
+			}
 		}
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return reflect.ValueOf(value).Int() == int64(1), true
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return reflect.ValueOf(value).Uint() == uint64(1), true
 	}
 
-	return false, false
+	return false
 }

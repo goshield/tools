@@ -1,5 +1,9 @@
 ignored = ["github.com/onsi/ginkgo", "github.com/onsi/gomega"]
 
+[[constraint]]
+  name = "github.com/goshield/interfaces"
+  version = "1.x"
+
 [prune]
   go-tests = true
   unused-packages = true
