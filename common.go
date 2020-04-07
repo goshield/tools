@@ -1,6 +1,6 @@
 package tools
 
-// Panic panics if input value is not nil
+// PanicOnError panics if input value is not nil
 func PanicOnError(err interface{}) {
 	if err != nil {
 		panic(err)

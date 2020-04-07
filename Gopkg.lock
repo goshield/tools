@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:0dd660bf22e8cc0a15ef9a79b82bb2c0528b988c0c0328225c9eb96199178f3a"
+  digest = "1:b3458bc5b149afb992254e0901cdb02918e8c8e1271a85feb0f81ca8dcefd4fc"
   name = "github.com/goshield/interfaces"
   packages = ["."]
   pruneopts = "UT"
-  revision = "d25935c967b1e5dce007667a36ddaa4d817cef2e"
-  version = "v1.0.2"
+  revision = "1db1bc93fbca2f4f24f1e6e964e1315a5c085782"
+  version = "v1.2.0"
 
 [solve-meta]
   analyzer-name = "dep"

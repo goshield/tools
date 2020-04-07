@@ -2,7 +2,7 @@ ignored = ["github.com/onsi/ginkgo", "github.com/onsi/gomega"]
 
 [[constraint]]
   name = "github.com/goshield/interfaces"
-  version = "1.x"
+  version = "1.2.x"
 
 [prune]
   go-tests = true
