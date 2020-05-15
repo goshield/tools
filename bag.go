@@ -10,7 +10,12 @@ import (
 
 // NewBag returns an instance of Bag
 func NewBag() interfaces.Bag {
-	return &factoryBag{make(map[string]interface{})}
+	return &factoryBag{items: make(map[string]interface{})}
+}
+
+// NewBagWithValues returns a bag with provided data
+func NewBagWithValues(data map[string]interface{}) interfaces.Bag {
+	return &factoryBag{items: data}
 }
 
 type factoryBag struct {
