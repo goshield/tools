@@ -10,16 +10,16 @@ import (
 
 // NewBag returns an instance of Bag
 func NewBag() interfaces.Bag {
-	return &factoryBag{items: make(map[string]interface{})}
+	return &factoryBag{make(map[string]interface{})}
 }
 
 // NewBagWithValues returns a bag with provided data
 func NewBagWithValues(data map[string]interface{}) interfaces.Bag {
-	return &factoryBag{items: data}
+	return &factoryBag{data}
 }
 
 type factoryBag struct {
-	items map[string]interface{}
+	data map[string]interface{}
 }
 
 func (b *factoryBag) GetOrDefault(key string, def interface{}) interface{} {
@@ -30,32 +30,34 @@ func (b *factoryBag) GetOrDefault(key string, def interface{}) interface{} {
 }
 
 func (b *factoryBag) Get(key string) interface{} {
-	return b.items[key]
+	return b.data[key]
 }
 
 func (b *factoryBag) Set(key string, value interface{}) {
-	b.items[key] = value
+	b.data[key] = value
 }
 
 func (b *factoryBag) Remove(key string) {
-	delete(b.items, key)
+	delete(b.data, key)
 }
 
 func (b *factoryBag) Has(key string) bool {
-	_, ok := b.items[key]
+	_, ok := b.data[key]
 	return ok
 }
 
 func (b *factoryBag) All() map[string]interface{} {
-	return b.items
+	return b.data
 }
 
 func (b *factoryBag) GetInt(key string) int64 {
-	value, ok := b.items[key]
+	value, ok := b.data[key]
 	if ok {
 		switch reflect.TypeOf(value).Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			return reflect.ValueOf(value).Int()
+		case reflect.Float32, reflect.Float64:
+			return int64(reflect.ValueOf(value).Float())
 		case reflect.String:
 			s := reflect.ValueOf(value).String()
 			i, err := strconv.ParseInt(s, 10, 64)
@@ -69,7 +71,7 @@ func (b *factoryBag) GetInt(key string) int64 {
 }
 
 func (b *factoryBag) GetUInt(key string) uint64 {
-	value, ok := b.items[key]
+	value, ok := b.data[key]
 	if ok {
 		switch reflect.TypeOf(value).Kind() {
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -87,7 +89,7 @@ func (b *factoryBag) GetUInt(key string) uint64 {
 }
 
 func (b *factoryBag) GetFloat(key string) float64 {
-	value, ok := b.items[key]
+	value, ok := b.data[key]
 	if ok {
 		switch reflect.TypeOf(value).Kind() {
 		case reflect.Float32, reflect.Float64:
@@ -105,7 +107,7 @@ func (b *factoryBag) GetFloat(key string) float64 {
 }
 
 func (b *factoryBag) GetString(key string) string {
-	value, ok := b.items[key]
+	value, ok := b.data[key]
 	if ok {
 		switch reflect.TypeOf(value).Kind() {
 		case reflect.String:
@@ -119,7 +121,7 @@ func (b *factoryBag) GetString(key string) string {
 }
 
 func (b *factoryBag) GetBool(key string) bool {
-	value, ok := b.items[key]
+	value, ok := b.data[key]
 	if ok {
 		switch reflect.TypeOf(value).Kind() {
 		case reflect.Bool:
